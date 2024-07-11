@@ -3,20 +3,24 @@ import Dropdown, { Option } from "./components/dropdown";
 import { useState } from "react";
 import DateTimeInput from "./components/dateTimePicker";
 import Checkbox from "./components/checkbox";
+import { apiGenerateAgenda } from "@/api/agenda";
 
-type TeamMember = "joshulynepark" | "peterdudka";
+import { QueryClient, QueryClientProvider, useMutation } from "react-query";
+import { AxiosError } from "axios";
+
+export type TeamMemberEmail = "joshpark118@gmail.com" | "pi.dudka@gmail.com";
 const TEAM_MEMBER_OPTIONS: Option[] = [
   {
     label: "Joshulyne Park",
-    value: "joshulynepark",
+    value: "joshpark118@gmail.com",
   },
   {
     label: "Peter Dudka",
-    value: "peterdudka",
+    value: "pi.dudka@gmail.com",
   },
 ];
 
-type AgendaItems =
+export type AgendaItem =
   | "personal-updates"
   | "accomplishments"
   | "blockers"
@@ -40,16 +44,45 @@ const AGENDA_ITEM_OPTIONS: Option[] = [
   },
 ];
 
-export default function Home() {
+const queryClient = new QueryClient();
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Home />
+    </QueryClientProvider>
+  );
+}
+
+function Home() {
   const today = new Date();
   const oneWeekBefore = new Date(today);
   oneWeekBefore.setDate(today.getDate() - 7);
-  const [teamMember, setTeamMember] = useState<TeamMember>("joshulynepark");
-  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
-  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
+  const [teamMember, setTeamMember] = useState<TeamMemberEmail>(
+    "joshpark118@gmail.com"
+  );
+  const [selectedStartDate, setSelectedStartDate] =
+    useState<Date>(oneWeekBefore);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date>(today);
 
-  const [selectedAgendaItems, setSelectedAgendaItems] = useState<AgendaItems[]>(
+  const [selectedAgendaItems, setSelectedAgendaItems] = useState<AgendaItem[]>(
     []
+  );
+
+  const generateAgendaMutation = useMutation(
+    () =>
+      apiGenerateAgenda({
+        user: teamMember,
+        startDate: selectedStartDate,
+        endDate: selectedEndDate,
+        agendaItems: selectedAgendaItems,
+      }),
+    {
+      onSuccess: () => console.log("successfully generated agenda"),
+      onError: (err: AxiosError) => {
+        console.log(err);
+      },
+    }
   );
 
   return (
@@ -62,7 +95,7 @@ export default function Home() {
             options={TEAM_MEMBER_OPTIONS}
             selectedOptionValue={teamMember}
             onSelectOption={(option) => {
-              setTeamMember(option as TeamMember);
+              setTeamMember(option as TeamMemberEmail);
             }}
             fullWidth
           />
@@ -72,13 +105,13 @@ export default function Home() {
           <div className="flex-col space-y-4">
             <DateTimeInput
               selected={selectedStartDate}
-              onChange={(date) => setSelectedStartDate(date)}
+              onChange={(date) => date && setSelectedStartDate(date)}
               showTimeSelect={false}
               maxDate={oneWeekBefore}
             />
             <DateTimeInput
               selected={selectedEndDate}
-              onChange={(date) => setSelectedEndDate(date)}
+              onChange={(date) => date && setSelectedEndDate(date)}
               showTimeSelect={false}
               maxDate={today}
             />
@@ -91,14 +124,17 @@ export default function Home() {
               options={AGENDA_ITEM_OPTIONS}
               selectedValues={selectedAgendaItems}
               onSelectOption={(option) =>
-                setSelectedAgendaItems(option as AgendaItems[])
+                setSelectedAgendaItems(option as AgendaItem[])
               }
             />
           </div>
         </div>
         <button
           className="justify-center items-center flex shadow-sm hover:shadow-md disabled:shadow-none ease-out duration-200 font-medium disabled:cursor-default w-full h-12 px-6 b2 rounded-.5xl border border-white/20 bg-white/10 text-white hover:border-white/30 hover:bg-white/20 disabled:border-none disabled:bg-white/5 disabled:text-white/50"
-          onClick={() => console.log("generating agenda")}
+          onClick={() => {
+            console.log("generating agenda");
+            generateAgendaMutation.mutate();
+          }}
         >
           <div className="m-2 p-2">Generate Agenda!</div>
         </button>

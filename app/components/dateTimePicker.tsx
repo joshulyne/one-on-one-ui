@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface DateTimePickerProps {
-  selected: Date | null;
+  selected: Date;
   onChange: (
     date: Date | null,
     event?: React.SyntheticEvent<any, Event>
