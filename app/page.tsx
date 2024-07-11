@@ -4,8 +4,8 @@ import { useState } from "react";
 import DateTimeInput from "./components/dateTimePicker";
 import Checkbox from "./components/checkbox";
 
-export type TeamMember = "joshulynepark" | "peterdudka";
-export const TEAM_MEMBER_OPTIONS: Option[] = [
+type TeamMember = "joshulynepark" | "peterdudka";
+const TEAM_MEMBER_OPTIONS: Option[] = [
   {
     label: "Joshulyne Park",
     value: "joshulynepark",
@@ -16,12 +16,12 @@ export const TEAM_MEMBER_OPTIONS: Option[] = [
   },
 ];
 
-export type AgendaItems =
+type AgendaItems =
   | "personal-updates"
   | "accomplishments"
   | "blockers"
   | "risks";
-export const AGENDA_ITEM_OPTIONS: Option[] = [
+const AGENDA_ITEM_OPTIONS: Option[] = [
   {
     label: "Personal Updates",
     value: "personal-updates",
