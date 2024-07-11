@@ -1,112 +1,107 @@
-import Image from "next/image";
+"use client";
+import Dropdown, { Option } from "./components/dropdown";
+import { useState } from "react";
+import DateTimeInput from "./components/dateTimePicker";
+import Checkbox from "./components/checkbox";
+
+export type TeamMember = "joshulynepark" | "peterdudka";
+export const TEAM_MEMBER_OPTIONS: Option[] = [
+  {
+    label: "Joshulyne Park",
+    value: "joshulynepark",
+  },
+  {
+    label: "Peter Dudka",
+    value: "peterdudka",
+  },
+];
+
+export type AgendaItems =
+  | "personal-updates"
+  | "accomplishments"
+  | "blockers"
+  | "risks";
+export const AGENDA_ITEM_OPTIONS: Option[] = [
+  {
+    label: "Personal Updates",
+    value: "personal-updates",
+  },
+  {
+    label: "Accomplishments",
+    value: "accomplishments",
+  },
+  {
+    label: "Blockers",
+    value: "blockers",
+  },
+  {
+    label: "Risks to company goals",
+    value: "risks",
+  },
+];
 
 export default function Home() {
+  const today = new Date();
+  const oneWeekBefore = new Date(today);
+  oneWeekBefore.setDate(today.getDate() - 7);
+  const [teamMember, setTeamMember] = useState<TeamMember>("joshulynepark");
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | null>(null);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
+
+  const [selectedAgendaItems, setSelectedAgendaItems] = useState<AgendaItems[]>(
+    []
+  );
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="flex min-h-screen flex-col items-center p-20 w-full">
+      <div className="space-y-10">
+        <div>Generate an agenda for your upcoming one-on-one</div>
+        <div className="flex flex-row justify-between">
+          <div>Team Member:</div>
+          <Dropdown
+            options={TEAM_MEMBER_OPTIONS}
+            selectedOptionValue={teamMember}
+            onSelectOption={(option) => {
+              setTeamMember(option as TeamMember);
+            }}
+            fullWidth
+          />
         </div>
-      </div>
-
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="flex flex-row justify-between">
+          <div>Date Range:</div>
+          <div className="flex-col space-y-4">
+            <DateTimeInput
+              selected={selectedStartDate}
+              onChange={(date) => setSelectedStartDate(date)}
+              showTimeSelect={false}
+              maxDate={oneWeekBefore}
+            />
+            <DateTimeInput
+              selected={selectedEndDate}
+              onChange={(date) => setSelectedEndDate(date)}
+              showTimeSelect={false}
+              maxDate={today}
+            />
+          </div>
+        </div>
+        <div className="flex flex-row justify-between">
+          <div>Types of updates:</div>
+          <div className="flex-col space-y-4">
+            <Checkbox
+              options={AGENDA_ITEM_OPTIONS}
+              selectedValues={selectedAgendaItems}
+              onSelectOption={(option) =>
+                setSelectedAgendaItems(option as AgendaItems[])
+              }
+            />
+          </div>
+        </div>
+        <button
+          className="justify-center items-center flex shadow-sm hover:shadow-md disabled:shadow-none ease-out duration-200 font-medium disabled:cursor-default w-full h-12 px-6 b2 rounded-.5xl border border-white/20 bg-white/10 text-white hover:border-white/30 hover:bg-white/20 disabled:border-none disabled:bg-white/5 disabled:text-white/50"
+          onClick={() => console.log("generating agenda")}
         >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+          <div className="m-2 p-2">Generate Agenda!</div>
+        </button>
       </div>
     </main>
   );
