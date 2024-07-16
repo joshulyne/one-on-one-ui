@@ -10,9 +10,8 @@ interface APIAgendaInput {
   agendaItems: AgendaItem[];
 }
 
-export const apiGenerateAgenda = async (
-  agendaInput: APIAgendaInput
-): Promise<void> => {
-  const { data } = await axios.post(`${HOST}/agenda`, agendaInput);
-  return data;
+export const apiGenerateAgenda = async (agendaInput: APIAgendaInput) => {
+  return await axios.post(`${HOST}/agenda`, agendaInput, {
+    responseType: "blob",
+  });
 };

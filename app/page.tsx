@@ -5,8 +5,7 @@ import DateTimeInput from "./components/dateTimePicker";
 import Checkbox from "./components/checkbox";
 import { apiGenerateAgenda } from "@/api/agenda";
 
-import { QueryClient, QueryClientProvider, useMutation } from "react-query";
-import { AxiosError } from "axios";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 export type TeamMemberEmail = "joshpark118@gmail.com" | "pi.dudka@gmail.com";
 const TEAM_MEMBER_OPTIONS: Option[] = [
@@ -69,21 +68,30 @@ function Home() {
     []
   );
 
-  const generateAgendaMutation = useMutation(
-    () =>
-      apiGenerateAgenda({
-        user: teamMember,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
-        agendaItems: selectedAgendaItems,
-      }),
-    {
-      onSuccess: () => console.log("successfully generated agenda"),
-      onError: (err: AxiosError) => {
-        console.log(err);
-      },
+  const handleDownloadAgendaPDF = async () => {
+    const response = await apiGenerateAgenda({
+      user: teamMember,
+      startDate: selectedStartDate,
+      endDate: selectedEndDate,
+      agendaItems: selectedAgendaItems,
+    });
+
+    if (response.status === 200) {
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${teamMember}-${formatDate(selectedStartDate)}-${formatDate(
+        selectedEndDate
+      )}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } else {
+      console.error("Failed to fetch the PDF:", response.statusText);
     }
-  );
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-20 w-full">
@@ -131,14 +139,18 @@ function Home() {
         </div>
         <button
           className="justify-center items-center flex shadow-sm hover:shadow-md disabled:shadow-none ease-out duration-200 font-medium disabled:cursor-default w-full h-12 px-6 b2 rounded-.5xl border border-white/20 bg-white/10 text-white hover:border-white/30 hover:bg-white/20 disabled:border-none disabled:bg-white/5 disabled:text-white/50"
-          onClick={() => {
-            console.log("generating agenda");
-            generateAgendaMutation.mutate();
-          }}
+          onClick={handleDownloadAgendaPDF}
         >
           <div className="m-2 p-2">Generate Agenda!</div>
         </button>
       </div>
     </main>
   );
+}
+
+function formatDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2); // Months are zero indexed
+  const day = ("0" + date.getDate()).slice(-2);
+  return `${year}${month}${day}`;
 }
