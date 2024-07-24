@@ -115,13 +115,13 @@ function Home() {
               selected={selectedStartDate}
               onChange={(date) => date && setSelectedStartDate(date)}
               showTimeSelect={false}
-              maxDate={oneWeekBefore}
+              // maxDate={oneWeekBefore}
             />
             <DateTimeInput
               selected={selectedEndDate}
               onChange={(date) => date && setSelectedEndDate(date)}
               showTimeSelect={false}
-              maxDate={today}
+              // maxDate={today}
             />
           </div>
         </div>
